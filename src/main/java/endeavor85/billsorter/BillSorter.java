@@ -23,7 +23,7 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 
-public class RenamePatternPDF
+public class BillSorter
 {
 	private static final String		SETTINGS_JSON_FILE	= "./settings.json";
 
@@ -33,10 +33,10 @@ public class RenamePatternPDF
 
 	public static void main(String[] args)
 	{
-		new RenamePatternPDF().run(args);
+		new BillSorter().run(args);
 	}
 
-	public RenamePatternPDF()
+	public BillSorter()
 	{
 		try
 		{
