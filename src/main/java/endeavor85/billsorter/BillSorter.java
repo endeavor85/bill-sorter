@@ -88,9 +88,18 @@ public class BillSorter
 			System.exit(1);
 		}
 
-		for(int filenamenum = 0; filenamenum < args.length; filenamenum++)
+		boolean verbose = false;
+		int argNum = 0;
+		
+		if(args[0].equalsIgnoreCase("-v"))
 		{
-			inputFilename = args[filenamenum];
+			argNum++;
+			verbose = true;
+		}
+		
+		for(; argNum < args.length; argNum++)
+		{
+			inputFilename = args[argNum];
 
 			try
 			{
@@ -110,7 +119,12 @@ public class BillSorter
 				reader.close();
 
 				// print the text contents of the PDF file (for debugging purposes only)
-				// System.out.println(pdfText);
+				if(verbose) {
+					System.out.println(
+							"\n\n\n\nDOCUMENT PDF TEXT STARTS ON NEXT LINE\n"
+							+ pdfText
+							+ "\nDOCUMENT PDF TEXT ENDED ON PREVIOUS LINE\n\n\n\n");
+				}
 
 				PatternSetting patternSetting = determinePatternSetting(pdfText);
 
@@ -151,10 +165,14 @@ public class BillSorter
 							e.printStackTrace();
 						}
 					}
+					else
+					{
+						System.err.println("ERROR: Date pattern not found in document text: " + patternSetting.getDateMatcher());
+					}
 				}
 				else
 				{
-					System.err.println("Unable to identify file's pattern, skipping: " + inputFilename);
+					System.err.println("ERROR: Unable to identify file's pattern, skipping: " + inputFilename);
 				}
 			}
 			catch(Exception e)
@@ -194,6 +212,7 @@ public class BillSorter
 
 	public String getUsage()
 	{
-		return this.getClass().getSimpleName() + " PDF_FILENAME [PDF_FILENAME ...]";
+		return this.getClass().getSimpleName() + "[-v] PDF_FILENAME [PDF_FILENAME ...]\n"
+				+ "  -v    verbose mode, prints PDF document text to help debug pattern matching issues";
 	}
 }
