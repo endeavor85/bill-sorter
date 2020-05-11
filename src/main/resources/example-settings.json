@@ -1,0 +1,39 @@
+[
+	{
+		"label": "Internet Bill",
+		"idPattern": ".*account_num.*some_ISP.*",
+		"dateMatcher": ".* Billing Date (\\d+)\\/(\\d+)\\/(\\d+) .*",
+		"parsedDateFormat": "MM dd yy",
+		"filenamePrefix": "",
+		"filenameDateFormat": "yyyy_MM_dd",
+		"filenameSuffix": " Internet Bill.pdf",
+		"destinationFolder": "C:/Bills/Internet"
+	},
+	{
+		"label": "AWS Bill",
+		"idPattern": ".*account_num.*Amazon Web Services Invoice.*",
+		"dateMatcher": ".*\\nInvoice Date: (\\S+) (\\d{1,2})[,\\s]+(\\d+)\\n.*",
+		"parsedDateFormat": "MMMMM d yyyy",
+		"filenamePrefix": "",
+		"filenameSuffix": " Amazon Web Services.pdf",
+		"destinationFolder": "C:/Bills/AWS"
+	},
+	{
+		"label": "Water Bill",
+		"idPattern": ".*some_city.*account_num.*",
+		"dateMatcher": ".*\\n\\s*BILLING DATE:\\s+(\\d+)\\/(\\d+)\\/(\\d+)\\n.*",
+		"parsedDateFormat": "MM dd yy",
+		"filenamePrefix": "",
+		"filenameSuffix": " Water Bill.pdf",
+		"destinationFolder": "C:/Bills/Water"
+	},
+	{
+		"label": "Electricity Bill",
+		"idPattern": ".*some_acct_num.*Energy_company_name.*",
+		"dateMatcher": ".*\\nBill Date: (\\S+) (\\d{1,2})[,\\s]+(\\d+)\\n.*",
+		"parsedDateFormat": "MMM dd yyyy",
+		"filenamePrefix": "",
+		"filenameSuffix": " Electricity Bill.pdf",
+		"destinationFolder": "C:/Bills/Electricity"
+	}
+]
