@@ -106,13 +106,13 @@ public class BillSorter
 				System.out.println("Reading " + inputFilename);
 
 				PdfReader reader = new PdfReader(inputFilename);
-				int n = reader.getNumberOfPages();
+				int totalPages = reader.getNumberOfPages();
 				String pdfText = new String();
 
 				PdfReaderContentParser parser = new PdfReaderContentParser(reader);
-				for(int i = 1; i <= n; i++)
+				for(int pageNum = 1; pageNum <= totalPages; pageNum++)
 				{
-					TextExtractionStrategy strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
+					TextExtractionStrategy strategy = parser.processContent(pageNum, new SimpleTextExtractionStrategy());
 					pdfText += strategy.getResultantText() + "\n";
 				}
 
