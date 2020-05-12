@@ -18,10 +18,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
-import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
-import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.SimpleTextExtractionStrategy;
 
 public class BillSorter
 {
@@ -105,18 +105,16 @@ public class BillSorter
 			{
 				System.out.println("Reading " + inputFilename);
 
-				PdfReader reader = new PdfReader(inputFilename);
-				int totalPages = reader.getNumberOfPages();
+				PdfDocument pdfDoc = new PdfDocument(new PdfReader(inputFilename));
+				int totalPages = pdfDoc.getNumberOfPages();
 				String pdfText = new String();
 
-				PdfReaderContentParser parser = new PdfReaderContentParser(reader);
 				for(int pageNum = 1; pageNum <= totalPages; pageNum++)
 				{
-					TextExtractionStrategy strategy = parser.processContent(pageNum, new SimpleTextExtractionStrategy());
-					pdfText += strategy.getResultantText() + "\n";
+					pdfText += PdfTextExtractor.getTextFromPage(pdfDoc.getPage(pageNum), new SimpleTextExtractionStrategy()) + "\n";
 				}
 
-				reader.close();
+				pdfDoc.close();
 
 				// print the text contents of the PDF file (for debugging purposes only)
 				if(verbose) {
