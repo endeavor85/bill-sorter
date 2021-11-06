@@ -1,11 +1,10 @@
 plugins {
-    id 'java'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'application'
 }
 
 repositories {
     mavenLocal()
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -18,14 +17,11 @@ group = 'endeavor85'
 version = '0.2.0'
 sourceCompatibility = '1.8'
 
-jar {
-   manifest {
-       // set default main class for executable jar
-       attributes 'Main-Class': 'endeavor85.pdfutils.ListPdfUtilities'
-   }
+application {
+    mainClass = 'endeavor85.pdfutils.ListPdfUtilities'
 }
 
-shadowJar {
-    // don't bundle unused classes, see: https://imperceptiblethoughts.com/shadow/configuration/minimizing/
-    minimize()
-}
+// shadowJar {
+//     // don't bundle unused classes, see: https://imperceptiblethoughts.com/shadow/configuration/minimizing/
+//     minimize()
+// }
