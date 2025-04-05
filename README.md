@@ -5,10 +5,10 @@
 Build using Gradle Wrapper.
 
 ```sh
-./gradlew shadowJar
+./gradlew assemble
 ```
 
-The output will be located in `./build/libs/BillSorter-x.x.x-all.jar`
+The output will be located in `./build/libs/BillSorter-x.x.x.jar`
 
 ## Install
 
@@ -17,18 +17,18 @@ To run create a Windows batch (`.bat`) file with the following contents:
 ```bat
 @echo off
 
-java -cp BillSorter-0.1.0-all.jar endeavor85.billsorter.BillSorter %*
+java -cp BillSorter-0.2.1.jar endeavor85.billsorter.BillSorter %*
 
 pause
 ```
 
-In the same directory, place the [`BillSorter-x.x.x-all.jar`](#build), and the [`settings.json`](#settings-file) file.
+In the same directory, place the [`BillSorter-x.x.x.jar`](#build), and the [`settings.json`](#settings-file) file.
 
 The directory should contain the following:
 
 ```sh
 some-dir:
-+---BillSorter-x.x.x-all.jar
++---BillSorter-x.x.x.jar
 +---rename.bat
 \---settings.json
 ```

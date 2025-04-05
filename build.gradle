@@ -1,5 +1,5 @@
 plugins {
-    id 'application'
+    id 'java'
 }
 
 repositories {
@@ -14,14 +14,21 @@ dependencies {
 }
 
 group = 'endeavor85'
-version = '0.2.0'
+version = '0.2.3'
 sourceCompatibility = '1.8'
 
-application {
-    mainClass = 'endeavor85.pdfutils.ListPdfUtilities'
+// jar task modification to include dependencies
+jar {
+    manifest {
+        attributes 'Main-Class': 'endeavor85.billsorter.BillSorter'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.compileClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }{
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    }
+    // from { (configurations.runtime).collect { it.isDirectory() ? it : zipTree(it) } } {
+    //     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    // }
 }
-
-// shadowJar {
-//     // don't bundle unused classes, see: https://imperceptiblethoughts.com/shadow/configuration/minimizing/
-//     minimize()
-// }

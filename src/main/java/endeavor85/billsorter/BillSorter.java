@@ -23,194 +23,192 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.SimpleTextExtractionStrategy;
 
-public class BillSorter
-{
-	private static final String		SETTINGS_JSON_FILE	= "./settings.json";
+public class BillSorter {
+    private static final String SETTINGS_JSON_FILE = "./settings.json";
 
-	String							inputFilename		= null;
+    String inputFilename = null;
 
-	private List<PatternSetting>	patterns			= new ArrayList<>();
+    private List<PatternSetting> patterns = new ArrayList<>();
 
-	public static void main(String[] args)
-	{
-		new BillSorter().run(args);
-	}
+    public static void main(String[] args) {
+        new BillSorter().run(args);
+    }
 
-	public BillSorter()
-	{
-		try
-		{
-			patterns = loadPatternSettings(SETTINGS_JSON_FILE);
-		}
-		catch(JsonIOException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		catch(JsonSyntaxException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		catch(FileNotFoundException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
+    public BillSorter() {
+        try {
+            patterns = loadPatternSettings(SETTINGS_JSON_FILE);
+        } catch (JsonIOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (JsonSyntaxException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+    }
 
-	private static List<PatternSetting> loadPatternSettings(String settingsJsonFilename) throws JsonIOException, JsonSyntaxException, FileNotFoundException
-	{
-		JsonArray settingsJson = new JsonParser().parse(new FileReader(settingsJsonFilename)).getAsJsonArray();
+    private static List<PatternSetting> loadPatternSettings(String settingsJsonFilename)
+            throws JsonIOException, JsonSyntaxException, FileNotFoundException {
+        JsonArray settingsJson = new JsonParser().parse(new FileReader(settingsJsonFilename)).getAsJsonArray();
 
-		List<PatternSetting> patterns = new ArrayList<>();
+        List<PatternSetting> patterns = new ArrayList<>();
 
-		Gson gson = new Gson();
+        Gson gson = new Gson();
 
-		for(JsonElement patternElement : settingsJson)
-		{
-			PatternSetting patternSetting = gson.fromJson(patternElement, PatternSetting.class);
+        for (JsonElement patternElement : settingsJson) {
+            PatternSetting patternSetting = gson.fromJson(patternElement, PatternSetting.class);
 
-			patterns.add(patternSetting);
-		}
+            patterns.add(patternSetting);
+        }
 
-		System.out.println("Loaded " + patterns.size() + " patterns from " + settingsJsonFilename + "\n");
+        System.out.println("Loaded " + patterns.size() + " patterns from " + settingsJsonFilename + "\n");
 
-		return patterns;
-	}
+        return patterns;
+    }
 
-	public void run(String[] args)
-	{
+    public void run(String[] args) {
 
-		if(args.length < 1)
-		{
-			System.err.println("Missing filename arguments.\n" + getUsage());
-			System.exit(1);
-		}
+        if (args.length < 1) {
+            System.err.println("Missing filename arguments.\n" + getUsage());
+            printResult("FAILED");
+            System.exit(1);
+        }
 
-		boolean verbose = false;
-		int argNum = 0;
-		
-		if(args[0].equalsIgnoreCase("-v"))
-		{
-			argNum++;
-			verbose = true;
-		}
-		
-		for(; argNum < args.length; argNum++)
-		{
-			inputFilename = args[argNum];
+        boolean verbose = false;
+        int argNum = 0;
 
-			try
-			{
-				System.out.println("Reading " + inputFilename);
+        if (args[0].equalsIgnoreCase("-v")) {
+            argNum++;
+            verbose = true;
+        }
 
-				PdfDocument pdfDoc = new PdfDocument(new PdfReader(inputFilename));
-				int totalPages = pdfDoc.getNumberOfPages();
-				String pdfText = new String();
+        for (; argNum < args.length; argNum++) {
+            inputFilename = args[argNum];
 
-				for(int pageNum = 1; pageNum <= totalPages; pageNum++)
-				{
-					pdfText += PdfTextExtractor.getTextFromPage(pdfDoc.getPage(pageNum), new SimpleTextExtractionStrategy()) + "\n";
-				}
+            try {
+                System.out.println("Reading " + inputFilename);
 
-				pdfDoc.close();
+                PdfDocument pdfDoc = new PdfDocument(new PdfReader(inputFilename));
+                long pdfLengthBytes = pdfDoc.getReader().getFileLength();
+                int totalPages = pdfDoc.getNumberOfPages();
+                String pdfText = new String();
 
-				// print the text contents of the PDF file (for debugging purposes only)
-				if(verbose) {
-					System.out.println(
-							"\n\n\n\nDOCUMENT PDF TEXT STARTS ON NEXT LINE\n"
-							+ pdfText
-							+ "\nDOCUMENT PDF TEXT ENDED ON PREVIOUS LINE\n\n\n\n");
-				}
+                for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
+                    pdfText += PdfTextExtractor.getTextFromPage(pdfDoc.getPage(pageNum),
+                            new SimpleTextExtractionStrategy()) + "\n";
+                }
 
-				PatternSetting patternSetting = determinePatternSetting(pdfText);
+                pdfDoc.close();
 
-				if(patternSetting != null)
-				{
-					Matcher dateMatcher = Pattern.compile(patternSetting.getDateMatcher(), Pattern.DOTALL).matcher(pdfText);
-					if(dateMatcher.matches())
-					{
-						System.out.println("Date matched: " + dateMatcher.group(1) + dateMatcher.group(2) + dateMatcher.group(3));
-						Date date = new SimpleDateFormat(patternSetting.getParsedDateFormat(), Locale.ENGLISH).parse(dateMatcher.group(1) + " " + dateMatcher.group(2) + " " + dateMatcher.group(3));
+                // print the text contents of the PDF file (for debugging purposes only)
+                if (verbose) {
+                    System.out.println(
+                            "\n\n\n\nDOCUMENT PDF TEXT STARTS ON NEXT LINE\n"
+                                    + pdfText
+                                    + "\nDOCUMENT PDF TEXT ENDED ON PREVIOUS LINE\n\n\n\n");
+                }
 
-						String dateStr = new SimpleDateFormat(patternSetting.getDateFormat()).format(date);
-						String outputFilename = String.format(patternSetting.getFilenamePrefix() + dateStr + patternSetting.getFilenameSuffix());
+                PatternSetting patternSetting = determinePatternSetting(pdfText);
 
-						File oldFile = new File(inputFilename);
-						System.out.println("Original file: " + oldFile.getAbsolutePath());
+                if (patternSetting != null) {
+                    Matcher dateMatcher = Pattern.compile(patternSetting.getDateMatcher(), Pattern.DOTALL)
+                            .matcher(pdfText);
+                    if (dateMatcher.matches()) {
+                        System.out.println(
+                                "Date matched: " + dateMatcher.group(1) + dateMatcher.group(2) + dateMatcher.group(3));
+                        Date date = new SimpleDateFormat(patternSetting.getParsedDateFormat(), Locale.ENGLISH)
+                                .parse(dateMatcher.group(1) + " " + dateMatcher.group(2) + " " + dateMatcher.group(3));
 
-						String newFilePath = patternSetting.getDestinationFolder() + File.separator + outputFilename;
-						System.out.println("Renaming to: " + outputFilename);
-						System.out.println("Moving to: " + newFilePath);
+                        String dateStr = new SimpleDateFormat(patternSetting.getDateFormat()).format(date);
+                        String outputFilename = String.format(
+                                patternSetting.getFilenamePrefix() + dateStr + patternSetting.getFilenameSuffix());
 
-						File newFile = new File(newFilePath);
+                        File oldFile = new File(inputFilename);
+                        System.out.println("Original file: " + oldFile.getAbsolutePath());
 
-						if(newFile.exists())
-						{
-							throw new java.io.IOException("File exists: " + newFilePath);
-						}
+                        String newFilePath = patternSetting.getDestinationFolder() + File.separator + outputFilename;
+                        System.out.println("Renaming to: " + outputFilename);
+                        System.out.println("Moving to: " + newFilePath);
 
-						// rename file
-						try
-						{
-							Files.copy(oldFile.toPath(), newFile.toPath());
-							System.out.println("File renamed to: " + newFilePath);
-						}
-						catch(Exception e)
-						{
-							System.err.println("Failed to rename file to: " + newFilePath);
-							e.printStackTrace();
-						}
-					}
-					else
-					{
-						System.err.println("ERROR: Date pattern not found in document text: " + patternSetting.getDateMatcher());
-					}
-				}
-				else
-				{
-					System.err.println("ERROR: Unable to identify file's pattern, skipping: " + inputFilename);
-				}
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
+                        File newFile = new File(newFilePath);
 
-			System.out.println();
-		}
-	}
+                        if (newFile.exists()) {
+                            System.out.println("INFO: Destination file already exists: " + newFilePath);
+                            // destination file already exists, check if it is the same size
+                            if (pdfLengthBytes == newFile.length()) {
+                                System.out.println("INFO:   File sizes match, skipping");
+                                printResult("ALREADY FILED");
+                            } else {
+                                System.out.println("WARN:   File sizes DO NOT match!");
+                                System.out.println("WARN:     Source: " + pdfLengthBytes);
+                                System.out.println("WARN:     Dest. : " + newFile.length());
+                                throw new java.io.IOException("File exists: " + newFilePath);
+                            }
+                        } else {
+                            // rename file
+                            try {
+                                Files.copy(oldFile.toPath(), newFile.toPath());
+                                System.out.println("File renamed to: " + newFilePath);
+                                printResult("SUCCESS!");
+                            } catch (Exception e) {
+                                System.err.println("Failed to rename file to: " + newFilePath);
+                                printResult("FAILED");
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        System.err.println(
+                                "ERROR: Date pattern not found in document text: " + patternSetting.getDateMatcher());
+                        printResult("FAILED");
+                    }
+                } else {
+                    System.err.println("ERROR: Unable to identify file's pattern, skipping: " + inputFilename);
+                    printResult("FAILED");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                printResult("FAILED");
+            }
 
-	/**
-	 * Iterate over PatternSettings to determine which PatternSetting's idPattern String is matched in the given text.
-	 * 
-	 * @param pdfText
-	 * @return
-	 */
-	private PatternSetting determinePatternSetting(final String pdfText)
-	{
-		for(PatternSetting patternSetting : patterns)
-		{
-			System.out.print("Identifying file: " + patternSetting.getLabel() + " ... ");
+            System.out.println();
+        }
+    }
 
-			Matcher idMatcher = Pattern.compile(patternSetting.getIdPattern(), Pattern.DOTALL).matcher(pdfText);
-			if(idMatcher.matches())
-			{
-				System.out.println("MATCH!");
-				return patternSetting;
-			}
-			else
-			{
-				System.out.println("no match.");
-			}
-		}
-		return null;
-	}
+    /**
+     * Iterate over PatternSettings to determine which PatternSetting's idPattern
+     * String is matched in the given text.
+     * 
+     * @param pdfText
+     * @return
+     */
+    private PatternSetting determinePatternSetting(final String pdfText) {
+        for (PatternSetting patternSetting : patterns) {
+            System.out.print("Identifying file: " + patternSetting.getLabel() + " ... ");
 
-	public String getUsage()
-	{
-		return this.getClass().getSimpleName() + "[-v] PDF_FILENAME [PDF_FILENAME ...]\n"
-				+ "  -v    verbose mode, prints PDF document text to help debug pattern matching issues";
-	}
+            Matcher idMatcher = Pattern.compile(patternSetting.getIdPattern(), Pattern.DOTALL).matcher(pdfText);
+            if (idMatcher.matches()) {
+                System.out.println("MATCH!");
+                return patternSetting;
+            } else {
+                System.out.println("no match.");
+            }
+        }
+        return null;
+    }
+
+    private void printResult(final String resultText) {
+        System.out.println("\n" +
+        "################################################################################\n" +
+        "##                                                                            ##\n" +
+        "##    " + resultText.toUpperCase() + "\n" +
+        "##                                                                            ##\n" +
+        "################################################################################\n\n");
+    }
+
+    public String getUsage() {
+        return this.getClass().getSimpleName() + "[-v] PDF_FILENAME [PDF_FILENAME ...]\n"
+                + "  -v    verbose mode, prints PDF document text to help debug pattern matching issues";
+    }
 }
